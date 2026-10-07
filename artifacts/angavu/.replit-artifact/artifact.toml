@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Angavu Business Intelligence"
+description = "An offline-first business intelligence workspace for Kenyan SMEs, bringing finance and pharmacy operations into one live dashboard with queued data entry and Google Sheets sync."
+version = "1.0.0"
+id = "artifacts/angavu"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24873
+
+[services.development]
+run = "pnpm --filter @workspace/angavu run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/angavu", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/angavu/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24873"
+BASE_PATH = "/"
