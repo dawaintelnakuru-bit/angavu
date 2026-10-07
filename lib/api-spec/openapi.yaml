@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: angavu
+    description: Angavu workspace, reporting, and offline sync
 paths:
   /healthz:
     get:
@@ -24,6 +26,91 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /angavu/settings:
+    get:
+      operationId: getAngavuSettings
+      tags: [angavu]
+      summary: Get the current user's spreadsheet connections
+      responses:
+        "200":
+          description: Spreadsheet connection settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AngavuSettings"
+    put:
+      operationId: updateAngavuSettings
+      tags: [angavu]
+      summary: Save spreadsheet connections
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AngavuSettingsInput"
+      responses:
+        "200":
+          description: Updated spreadsheet connection settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AngavuSettings"
+  /angavu/dashboard:
+    get:
+      operationId: getAngavuDashboard
+      tags: [angavu]
+      summary: Fetch calculated dashboard metrics and trends
+      parameters:
+        - name: module
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [finance, pharmacy]
+      responses:
+        "200":
+          description: Dashboard data from Sheets or the onboarding demo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AngavuDashboard"
+  /angavu/lookups:
+    get:
+      operationId: getAngavuLookups
+      tags: [angavu]
+      summary: Fetch valid branches and pharmacy products for data entry
+      parameters:
+        - name: module
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [finance, pharmacy]
+      responses:
+        "200":
+          description: Data-entry dropdown values
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AngavuLookups"
+  /angavu/sync:
+    post:
+      operationId: syncAngavuEntries
+      tags: [angavu]
+      summary: Idempotently sync queued offline entries to Google Sheets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AngavuSyncInput"
+      responses:
+        "200":
+          description: Sync result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AngavuSyncResult"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +120,136 @@ components:
           type: string
       required:
         - status
+    AngavuSettings:
+      type: object
+      required: [financeSpreadsheetUrl, pharmacySpreadsheetUrl, googleSheetsReady]
+      properties:
+        financeSpreadsheetUrl: { type: ["string", "null"] }
+        pharmacySpreadsheetUrl: { type: ["string", "null"] }
+        googleSheetsReady: { type: boolean }
+    AngavuSettingsInput:
+      type: object
+      properties:
+        financeSpreadsheetUrl: { type: ["string", "null"], format: uri }
+        pharmacySpreadsheetUrl: { type: ["string", "null"], format: uri }
+    AngavuDashboard:
+      type: object
+      required: [module, source, refreshedAt, metrics, trend, alerts, stock]
+      properties:
+        module: { type: string, enum: [finance, pharmacy] }
+        source: { type: string, enum: [sheets, demo, disconnected] }
+        refreshedAt: { type: string, format: date-time }
+        metrics:
+          type: array
+          items: { $ref: "#/components/schemas/AngavuMetric" }
+        trend:
+          type: array
+          items: { $ref: "#/components/schemas/AngavuTrendPoint" }
+        alerts:
+          type: array
+          items: { $ref: "#/components/schemas/AngavuAlert" }
+        stock:
+          type: array
+          items: { $ref: "#/components/schemas/AngavuStockItem" }
+    AngavuMetric:
+      type: object
+      required: [label, value, unit]
+      properties:
+        label: { type: string }
+        value: { type: number }
+        unit: { type: string }
+        change: { type: ["number", "null"] }
+        tone: { type: string, enum: [positive, negative, neutral, warning] }
+    AngavuTrendPoint:
+      type: object
+      required: [date, label, income, expense, net]
+      properties:
+        date: { type: string, format: date }
+        label: { type: string }
+        income: { type: number }
+        expense: { type: number }
+        net: { type: number }
+    AngavuAlert:
+      type: object
+      required: [id, title, detail, severity]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        detail: { type: string }
+        severity: { type: string, enum: [critical, warning, info] }
+        action: { type: ["string", "null"] }
+    AngavuStockItem:
+      type: object
+      required: [drugName, stock, daysRemaining, status]
+      properties:
+        drugName: { type: string }
+        stock: { type: number }
+        daysRemaining: { type: number }
+        status: { type: string }
+        nearestExpiry: { type: ["string", "null"] }
+        expiryDays: { type: ["integer", "null"] }
+    AngavuLookups:
+      type: object
+      required: [branches, categories, products]
+      properties:
+        branches:
+          type: array
+          items: { type: string }
+        categories:
+          type: array
+          items: { type: string }
+        products:
+          type: array
+          items: { $ref: "#/components/schemas/AngavuProduct" }
+    AngavuProduct:
+      type: object
+      required: [name, unit]
+      properties:
+        name: { type: string }
+        unit: { type: string }
+    AngavuSyncInput:
+      type: object
+      required: [entries]
+      properties:
+        entries:
+          type: array
+          maxItems: 100
+          items: { $ref: "#/components/schemas/AngavuEntryInput" }
+    AngavuEntryInput:
+      type: object
+      required: [id, module, date, type]
+      properties:
+        id: { type: string, minLength: 1, maxLength: 100 }
+        module: { type: string, enum: [finance, pharmacy] }
+        date: { type: string, format: date }
+        type: { type: string, enum: [Income, Expense, Dispensed, Received, Returned, Expired] }
+        branch: { type: string }
+        category: { type: string }
+        description: { type: string }
+        amount: { type: number, minimum: 0 }
+        paymentMethod: { type: string }
+        employee: { type: string }
+        pharmacy: { type: string }
+        staffName: { type: string }
+        drugName: { type: string }
+        quantity: { type: integer, minimum: 1 }
+        expiryDate: { type: ["string", "null"], format: date }
+        notes: { type: string }
+    AngavuSyncFailure:
+      type: object
+      required: [id, message]
+      properties:
+        id: { type: string }
+        message: { type: string }
+    AngavuSyncResult:
+      type: object
+      required: [syncedIds, failures, syncedAt]
+      properties:
+        syncedIds:
+          type: array
+          items: { type: string }
+        failures:
+          type: array
+          items: { $ref: "#/components/schemas/AngavuSyncFailure" }
+        syncedAt: { type: string, format: date-time }
 
