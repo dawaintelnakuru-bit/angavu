@@ -12,4 +12,5 @@ export type GetAngavuLookupsModule = typeof GetAngavuLookupsModule[keyof typeof 
 export const GetAngavuLookupsModule = {
   finance: 'finance',
   pharmacy: 'pharmacy',
+  inventory: 'inventory',
 } as const;

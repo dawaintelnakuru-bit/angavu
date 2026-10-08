@@ -1,0 +1,1 @@
+- [Clerk client compatibility](clerk-client-compatibility.md) — verify installed Clerk package exports and align `@clerk/react` with its `@clerk/shared` major.

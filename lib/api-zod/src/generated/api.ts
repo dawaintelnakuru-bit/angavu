@@ -23,6 +23,7 @@ export const HealthCheckResponse = zod.object({
 export const GetAngavuSettingsResponse = zod.object({
   "financeSpreadsheetUrl": zod.string().nullable(),
   "pharmacySpreadsheetUrl": zod.string().nullable(),
+  "inventorySpreadsheetUrl": zod.string().nullable(),
   "googleSheetsReady": zod.boolean()
 })
 
@@ -32,12 +33,14 @@ export const GetAngavuSettingsResponse = zod.object({
  */
 export const UpdateAngavuSettingsBody = zod.object({
   "financeSpreadsheetUrl": zod.string().url().nullish(),
-  "pharmacySpreadsheetUrl": zod.string().url().nullish()
+  "pharmacySpreadsheetUrl": zod.string().url().nullish(),
+  "inventorySpreadsheetUrl": zod.string().url().nullish()
 })
 
 export const UpdateAngavuSettingsResponse = zod.object({
   "financeSpreadsheetUrl": zod.string().nullable(),
   "pharmacySpreadsheetUrl": zod.string().nullable(),
+  "inventorySpreadsheetUrl": zod.string().nullable(),
   "googleSheetsReady": zod.boolean()
 })
 
@@ -46,12 +49,12 @@ export const UpdateAngavuSettingsResponse = zod.object({
  * @summary Fetch calculated dashboard metrics and trends
  */
 export const GetAngavuDashboardQueryParams = zod.object({
-  "module": zod.enum(['finance', 'pharmacy'])
+  "module": zod.enum(['finance', 'pharmacy', 'inventory', 'analytics'])
 })
 
 export const GetAngavuDashboardResponse = zod.object({
-  "module": zod.enum(['finance', 'pharmacy']),
-  "source": zod.enum(['sheets', 'demo', 'disconnected']),
+  "module": zod.enum(['finance', 'pharmacy', 'inventory', 'analytics']),
+  "source": zod.enum(['sheets', 'demo', 'disconnected', 'mixed']),
   "refreshedAt": zod.coerce.date(),
   "metrics": zod.array(zod.object({
   "label": zod.string(),
@@ -75,9 +78,15 @@ export const GetAngavuDashboardResponse = zod.object({
   "action": zod.string().nullish()
 })),
   "stock": zod.array(zod.object({
-  "drugName": zod.string(),
+  "itemName": zod.string(),
+  "sku": zod.string().nullish(),
+  "category": zod.string().nullish(),
+  "unit": zod.string().nullish(),
   "stock": zod.number(),
-  "daysRemaining": zod.number(),
+  "daysRemaining": zod.number().nullish(),
+  "reorderLevel": zod.number().nullish(),
+  "unitCost": zod.number().nullish(),
+  "location": zod.string().nullish(),
   "status": zod.string(),
   "nearestExpiry": zod.string().nullish(),
   "expiryDays": zod.number().int().nullish()
@@ -89,7 +98,7 @@ export const GetAngavuDashboardResponse = zod.object({
  * @summary Fetch valid branches and pharmacy products for data entry
  */
 export const GetAngavuLookupsQueryParams = zod.object({
-  "module": zod.enum(['finance', 'pharmacy'])
+  "module": zod.enum(['finance', 'pharmacy', 'inventory'])
 })
 
 export const GetAngavuLookupsResponse = zod.object({
@@ -97,7 +106,10 @@ export const GetAngavuLookupsResponse = zod.object({
   "categories": zod.array(zod.string()),
   "products": zod.array(zod.object({
   "name": zod.string(),
-  "unit": zod.string()
+  "unit": zod.string(),
+  "sku": zod.string().nullish(),
+  "unitCost": zod.number().nullish(),
+  "reorderLevel": zod.number().nullish()
 }))
 })
 
@@ -109,6 +121,11 @@ export const syncAngavuEntriesBodyEntriesItemIdMax = 100;
 
 export const syncAngavuEntriesBodyEntriesItemAmountMin = 0;
 
+export const syncAngavuEntriesBodyEntriesItemUnitCostMin = 0;
+
+export const syncAngavuEntriesBodyEntriesItemReorderLevelMin = 0;
+
+export const syncAngavuEntriesBodyEntriesItemQuantityMin = 0.01;
 
 export const syncAngavuEntriesBodyEntriesMax = 100;
 
@@ -117,9 +134,9 @@ export const syncAngavuEntriesBodyEntriesMax = 100;
 export const SyncAngavuEntriesBody = zod.object({
   "entries": zod.array(zod.object({
   "id": zod.string().min(1).max(syncAngavuEntriesBodyEntriesItemIdMax),
-  "module": zod.enum(['finance', 'pharmacy']),
+  "module": zod.enum(['finance', 'pharmacy', 'inventory']),
   "date": zod.coerce.date(),
-  "type": zod.enum(['Income', 'Expense', 'Dispensed', 'Received', 'Returned', 'Expired']),
+  "type": zod.enum(['Income', 'Expense', 'Dispensed', 'Received', 'Returned', 'Expired', 'Stock In', 'Stock Out', 'Stock Count']),
   "branch": zod.string().optional(),
   "category": zod.string().optional(),
   "description": zod.string().optional(),
@@ -129,7 +146,12 @@ export const SyncAngavuEntriesBody = zod.object({
   "pharmacy": zod.string().optional(),
   "staffName": zod.string().optional(),
   "drugName": zod.string().optional(),
-  "quantity": zod.number().int().min(1).optional(),
+  "itemName": zod.string().optional(),
+  "sku": zod.string().optional(),
+  "unit": zod.string().optional(),
+  "unitCost": zod.number().min(syncAngavuEntriesBodyEntriesItemUnitCostMin).optional(),
+  "reorderLevel": zod.number().min(syncAngavuEntriesBodyEntriesItemReorderLevelMin).optional(),
+  "quantity": zod.number().min(syncAngavuEntriesBodyEntriesItemQuantityMin).optional(),
   "expiryDate": zod.coerce.date().nullish(),
   "notes": zod.string().optional()
 })).max(syncAngavuEntriesBodyEntriesMax)

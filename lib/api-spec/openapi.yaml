@@ -66,7 +66,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [finance, pharmacy]
+            enum: [finance, pharmacy, inventory, analytics]
       responses:
         "200":
           description: Dashboard data from Sheets or the onboarding demo
@@ -85,7 +85,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: [finance, pharmacy]
+            enum: [finance, pharmacy, inventory]
       responses:
         "200":
           description: Data-entry dropdown values
@@ -122,22 +122,24 @@ components:
         - status
     AngavuSettings:
       type: object
-      required: [financeSpreadsheetUrl, pharmacySpreadsheetUrl, googleSheetsReady]
+      required: [financeSpreadsheetUrl, pharmacySpreadsheetUrl, inventorySpreadsheetUrl, googleSheetsReady]
       properties:
         financeSpreadsheetUrl: { type: ["string", "null"] }
         pharmacySpreadsheetUrl: { type: ["string", "null"] }
+        inventorySpreadsheetUrl: { type: ["string", "null"] }
         googleSheetsReady: { type: boolean }
     AngavuSettingsInput:
       type: object
       properties:
         financeSpreadsheetUrl: { type: ["string", "null"], format: uri }
         pharmacySpreadsheetUrl: { type: ["string", "null"], format: uri }
+        inventorySpreadsheetUrl: { type: ["string", "null"], format: uri }
     AngavuDashboard:
       type: object
       required: [module, source, refreshedAt, metrics, trend, alerts, stock]
       properties:
-        module: { type: string, enum: [finance, pharmacy] }
-        source: { type: string, enum: [sheets, demo, disconnected] }
+        module: { type: string, enum: [finance, pharmacy, inventory, analytics] }
+        source: { type: string, enum: [sheets, demo, disconnected, mixed] }
         refreshedAt: { type: string, format: date-time }
         metrics:
           type: array
@@ -180,11 +182,17 @@ components:
         action: { type: ["string", "null"] }
     AngavuStockItem:
       type: object
-      required: [drugName, stock, daysRemaining, status]
+      required: [itemName, stock, status]
       properties:
-        drugName: { type: string }
+        itemName: { type: string }
+        sku: { type: ["string", "null"] }
+        category: { type: ["string", "null"] }
+        unit: { type: ["string", "null"] }
         stock: { type: number }
-        daysRemaining: { type: number }
+        daysRemaining: { type: ["number", "null"] }
+        reorderLevel: { type: ["number", "null"] }
+        unitCost: { type: ["number", "null"] }
+        location: { type: ["string", "null"] }
         status: { type: string }
         nearestExpiry: { type: ["string", "null"] }
         expiryDays: { type: ["integer", "null"] }
@@ -207,6 +215,9 @@ components:
       properties:
         name: { type: string }
         unit: { type: string }
+        sku: { type: ["string", "null"] }
+        unitCost: { type: ["number", "null"] }
+        reorderLevel: { type: ["number", "null"] }
     AngavuSyncInput:
       type: object
       required: [entries]
@@ -220,9 +231,9 @@ components:
       required: [id, module, date, type]
       properties:
         id: { type: string, minLength: 1, maxLength: 100 }
-        module: { type: string, enum: [finance, pharmacy] }
+        module: { type: string, enum: [finance, pharmacy, inventory] }
         date: { type: string, format: date }
-        type: { type: string, enum: [Income, Expense, Dispensed, Received, Returned, Expired] }
+        type: { type: string, enum: [Income, Expense, Dispensed, Received, Returned, Expired, Stock In, Stock Out, Stock Count] }
         branch: { type: string }
         category: { type: string }
         description: { type: string }
@@ -232,7 +243,12 @@ components:
         pharmacy: { type: string }
         staffName: { type: string }
         drugName: { type: string }
-        quantity: { type: integer, minimum: 1 }
+        itemName: { type: string }
+        sku: { type: string }
+        unit: { type: string }
+        unitCost: { type: number, minimum: 0 }
+        reorderLevel: { type: number, minimum: 0 }
+        quantity: { type: number, minimum: 0.01 }
         expiryDate: { type: ["string", "null"], format: date }
         notes: { type: string }
     AngavuSyncFailure:

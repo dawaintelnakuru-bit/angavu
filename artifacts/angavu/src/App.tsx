@@ -111,7 +111,7 @@ function AuthFrame({ children, mode }: { children: ReactNode; mode: 'sign-in' | 
     <div className="app-grid pointer-events-none absolute inset-0 opacity-50"/>
     <div className="absolute -left-20 top-12 h-72 w-72 rounded-full bg-[#ebd391]/25 blur-3xl"/>
     <div className="relative z-10 grid w-full max-w-[1050px] items-center gap-10 lg:grid-cols-[.85fr_1fr]">
-      <div className="hidden lg:block"><Wordmark/><div className="mt-12 max-w-md font-display text-5xl font-bold leading-[1.04] tracking-[-.06em] text-[#263b42]">{mode === 'sign-in' ? 'Your business, back in focus.' : 'Start with a clearer picture.'}</div><p className="mt-5 max-w-sm text-sm leading-6 text-[#687772]">Finance and pharmacy, together in one place. Angavu helps your day-to-day numbers make sense.</p><div className="mt-8 flex items-center gap-2 text-xs font-semibold text-[#567564]"><span className="grid h-7 w-7 place-items-center rounded-lg bg-[#e4ede2]">a</span> A bright view for the work you do.</div></div>
+      <div className="hidden lg:block"><Wordmark/><div className="mt-12 max-w-md font-display text-5xl font-bold leading-[1.04] tracking-[-.06em] text-[#263b42]">{mode === 'sign-in' ? 'Your business, back in focus.' : 'Start with a clearer picture.'}</div><p className="mt-5 max-w-sm text-sm leading-6 text-[#687772]">Finance, pharmacy and inventory, together in one place. Angavu helps your day-to-day numbers make sense.</p><div className="mt-8 flex items-center gap-2 text-xs font-semibold text-[#567564]"><span className="grid h-7 w-7 place-items-center rounded-lg bg-[#e4ede2]">a</span> A bright view for the work you do.</div></div>
       <div className="flex justify-center">{children}</div>
       <div className="text-center text-[11px] text-[#73807a] lg:hidden"><Wordmark/><p className="mt-4">A bright view for the work you do.</p></div>
     </div>
@@ -157,7 +157,8 @@ function ClerkProviderWithRoutes() {
             <Route path="/" component={HomeRedirect}/>
             <Route path="/sign-in/*?" component={SignInPage}/>
             <Route path="/sign-up/*?" component={SignUpPage}/>
-            <Route path="/dashboard"><ProtectedPage><Dashboard/></ProtectedPage></Route>
+            <Route path="/dashboard"><ProtectedPage><Dashboard initialModule="analytics"/></ProtectedPage></Route>
+            <Route path="/inventory"><ProtectedPage><Dashboard initialModule="inventory"/></ProtectedPage></Route>
             <Route path="/entry"><ProtectedPage><Entry/></ProtectedPage></Route>
             <Route path="/settings"><ProtectedPage><Settings/></ProtectedPage></Route>
             <Route component={NotFound}/>

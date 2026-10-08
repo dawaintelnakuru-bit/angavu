@@ -5,7 +5,8 @@ import { useClerk, useUser } from '@clerk/react';
 import { Activity, ArrowUpRight, BarChart3, ChevronDown, CircleHelp, LogOut, Menu, Plus, Settings2 } from 'lucide-react';
 
 const navItems = [
-  { href: '/dashboard', label: 'Overview', icon: BarChart3 },
+  { href: '/dashboard', label: 'Analytics', icon: BarChart3 },
+  { href: '/inventory', label: 'Inventory', icon: Activity },
   { href: '/entry', label: 'Quick entry', icon: Plus },
   { href: '/settings', label: 'Spreadsheet setup', icon: Settings2 },
 ];
@@ -33,7 +34,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
         <div className="mt-auto rounded-2xl border border-sidebar-border bg-sidebar-accent/55 p-4">
           <div className="mb-3 flex items-center gap-2 text-[11px] font-semibold text-sidebar-foreground/70"><Activity size={14} className="text-primary"/> YOUR DATA, IN VIEW</div>
-          <p className="text-xs leading-5 text-sidebar-foreground/55">Finance and pharmacy, brought into one clear picture.</p>
+          <p className="text-xs leading-5 text-sidebar-foreground/55">Finance, pharmacy and inventory in one clear picture.</p>
           <Link href="/settings" className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">Check connections <ArrowUpRight size={13}/></Link>
         </div>
         <div className="mt-4 flex items-center gap-3 border-t border-sidebar-border px-2 pt-4">

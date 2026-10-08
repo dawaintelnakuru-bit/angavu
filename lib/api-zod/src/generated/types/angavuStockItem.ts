@@ -7,9 +7,22 @@
  */
 
 export interface AngavuStockItem {
-  drugName: string;
+  itemName: string;
+  /** @nullable */
+  sku?: string | null;
+  /** @nullable */
+  category?: string | null;
+  /** @nullable */
+  unit?: string | null;
   stock: number;
-  daysRemaining: number;
+  /** @nullable */
+  daysRemaining?: number | null;
+  /** @nullable */
+  reorderLevel?: number | null;
+  /** @nullable */
+  unitCost?: number | null;
+  /** @nullable */
+  location?: string | null;
   status: string;
   /** @nullable */
   nearestExpiry?: string | null;

@@ -27,7 +27,14 @@ export interface AngavuEntryInput {
   pharmacy?: string;
   staffName?: string;
   drugName?: string;
-  /** @minimum 1 */
+  itemName?: string;
+  sku?: string;
+  unit?: string;
+  /** @minimum 0 */
+  unitCost?: number;
+  /** @minimum 0 */
+  reorderLevel?: number;
+  /** @minimum 0.01 */
   quantity?: number;
   /** @nullable */
   expiryDate?: Date | null;

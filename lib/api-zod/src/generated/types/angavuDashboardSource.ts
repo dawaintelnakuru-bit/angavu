@@ -13,4 +13,5 @@ export const AngavuDashboardSource = {
   sheets: 'sheets',
   demo: 'demo',
   disconnected: 'disconnected',
+  mixed: 'mixed',
 } as const;

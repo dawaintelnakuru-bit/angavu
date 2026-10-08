@@ -11,5 +11,7 @@ export interface AngavuSettings {
   financeSpreadsheetUrl: string | null;
   /** @nullable */
   pharmacySpreadsheetUrl: string | null;
+  /** @nullable */
+  inventorySpreadsheetUrl: string | null;
   googleSheetsReady: boolean;
 }

@@ -12,4 +12,6 @@ export type AngavuDashboardModule = typeof AngavuDashboardModule[keyof typeof An
 export const AngavuDashboardModule = {
   finance: 'finance',
   pharmacy: 'pharmacy',
+  inventory: 'inventory',
+  analytics: 'analytics',
 } as const;

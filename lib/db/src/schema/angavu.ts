@@ -6,6 +6,7 @@ export const angavuSettingsTable = pgTable("angavu_settings", {
   userId: text("user_id").primaryKey(),
   financeSpreadsheetId: text("finance_spreadsheet_id"),
   pharmacySpreadsheetId: text("pharmacy_spreadsheet_id"),
+  inventorySpreadsheetId: text("inventory_spreadsheet_id"),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow()

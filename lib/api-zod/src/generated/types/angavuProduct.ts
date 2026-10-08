@@ -9,4 +9,10 @@
 export interface AngavuProduct {
   name: string;
   unit: string;
+  /** @nullable */
+  sku?: string | null;
+  /** @nullable */
+  unitCost?: number | null;
+  /** @nullable */
+  reorderLevel?: number | null;
 }

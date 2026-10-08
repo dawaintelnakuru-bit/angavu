@@ -4,8 +4,8 @@ import { Wordmark } from '@/components/AppShell';
 
 const insights = [
   { n: '01', title: 'Know what came in.', text: 'See income, expenses and what is left — without building a report first.', icon: LineChart },
-  { n: '02', title: 'Catch what needs attention.', text: 'Low stock and near-expiry medicines show up before they become a surprise.', icon: HeartPulse },
-  { n: '03', title: 'Keep your own tools.', text: 'Your spreadsheets remain yours. Angavu gives them a clearer point of view.', icon: FileSpreadsheet },
+  { n: '02', title: 'Catch what needs attention.', text: 'Low stock, near-expiry medicines and spending changes show up before they become a surprise.', icon: HeartPulse },
+  { n: '03', title: 'Keep your own tools.', text: 'Your spreadsheets remain yours. Angavu gives finance, pharmacy and inventory a clearer point of view.', icon: FileSpreadsheet },
 ];
 
 export default function Landing() {
@@ -17,7 +17,7 @@ export default function Landing() {
         <div className="relative z-10 fade-up">
           <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#ded7c6] bg-[#fdfbf5] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[.13em] text-[#64736c]"><Sparkles size={13} className="text-[#cf8e1c]"/> A clearer view for Kenyan business</div>
           <h1 className="max-w-[700px] font-display text-[clamp(3.5rem,7.7vw,6.7rem)] font-extrabold leading-[.96] tracking-[-.075em]">Your numbers.<br/><span className="relative z-10 text-[#bc7915]">In the light.</span></h1>
-          <p className="mt-7 max-w-[530px] text-[17px] leading-7 text-[#61716f] md:text-[18px]">Angavu brings your finance and pharmacy spreadsheets into one clear, everyday view — so you can act on what your business is telling you.</p>
+          <p className="mt-7 max-w-[530px] text-[17px] leading-7 text-[#61716f] md:text-[18px]">Angavu brings your finance, pharmacy and inventory spreadsheets into one clear, everyday view — so you can act on what your business is telling you.</p>
           <div className="mt-9 flex flex-wrap items-center gap-3"><Link href="/sign-up" className="inline-flex items-center gap-3 rounded-xl bg-[#20363d] px-5 py-3.5 text-[14px] font-semibold text-[#fff9ea] shadow-[0_10px_26px_rgba(32,54,61,.16)] transition-all hover:-translate-y-0.5 hover:bg-[#2b4950]" data-testid="link-start-free">Bring your business into focus <ArrowRight size={16}/></Link><a href="#how-it-works" className="inline-flex items-center gap-2 px-4 py-3 text-[13px] font-semibold text-[#586966]"><CirclePlay size={17}/> See how it works</a></div>
           <div className="mt-9 flex flex-wrap gap-x-6 gap-y-2 text-[11px] font-medium text-[#72807b]"><span className="inline-flex items-center gap-1.5"><Check size={13} className="text-[#438166]"/> Works with Google Sheets</span><span className="inline-flex items-center gap-1.5"><ShieldCheck size={13} className="text-[#438166]"/> Your data stays yours</span></div>
         </div>

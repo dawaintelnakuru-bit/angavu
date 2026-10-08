@@ -14,6 +14,8 @@ export interface AngavuSettings {
   financeSpreadsheetUrl: string | null;
   /** @nullable */
   pharmacySpreadsheetUrl: string | null;
+  /** @nullable */
+  inventorySpreadsheetUrl: string | null;
   googleSheetsReady: boolean;
 }
 
@@ -22,6 +24,8 @@ export interface AngavuSettingsInput {
   financeSpreadsheetUrl?: string | null;
   /** @nullable */
   pharmacySpreadsheetUrl?: string | null;
+  /** @nullable */
+  inventorySpreadsheetUrl?: string | null;
 }
 
 export type AngavuDashboardModule = typeof AngavuDashboardModule[keyof typeof AngavuDashboardModule];
@@ -30,6 +34,8 @@ export type AngavuDashboardModule = typeof AngavuDashboardModule[keyof typeof An
 export const AngavuDashboardModule = {
   finance: 'finance',
   pharmacy: 'pharmacy',
+  inventory: 'inventory',
+  analytics: 'analytics',
 } as const;
 
 export type AngavuDashboardSource = typeof AngavuDashboardSource[keyof typeof AngavuDashboardSource];
@@ -39,6 +45,7 @@ export const AngavuDashboardSource = {
   sheets: 'sheets',
   demo: 'demo',
   disconnected: 'disconnected',
+  mixed: 'mixed',
 } as const;
 
 export type AngavuMetricTone = typeof AngavuMetricTone[keyof typeof AngavuMetricTone];
@@ -87,9 +94,22 @@ export interface AngavuAlert {
 }
 
 export interface AngavuStockItem {
-  drugName: string;
+  itemName: string;
+  /** @nullable */
+  sku?: string | null;
+  /** @nullable */
+  category?: string | null;
+  /** @nullable */
+  unit?: string | null;
   stock: number;
-  daysRemaining: number;
+  /** @nullable */
+  daysRemaining?: number | null;
+  /** @nullable */
+  reorderLevel?: number | null;
+  /** @nullable */
+  unitCost?: number | null;
+  /** @nullable */
+  location?: string | null;
   status: string;
   /** @nullable */
   nearestExpiry?: string | null;
@@ -110,6 +130,12 @@ export interface AngavuDashboard {
 export interface AngavuProduct {
   name: string;
   unit: string;
+  /** @nullable */
+  sku?: string | null;
+  /** @nullable */
+  unitCost?: number | null;
+  /** @nullable */
+  reorderLevel?: number | null;
 }
 
 export interface AngavuLookups {
@@ -124,6 +150,7 @@ export type AngavuEntryInputModule = typeof AngavuEntryInputModule[keyof typeof 
 export const AngavuEntryInputModule = {
   finance: 'finance',
   pharmacy: 'pharmacy',
+  inventory: 'inventory',
 } as const;
 
 export type AngavuEntryInputType = typeof AngavuEntryInputType[keyof typeof AngavuEntryInputType];
@@ -136,6 +163,9 @@ export const AngavuEntryInputType = {
   Received: 'Received',
   Returned: 'Returned',
   Expired: 'Expired',
+  Stock_In: 'Stock In',
+  Stock_Out: 'Stock Out',
+  Stock_Count: 'Stock Count',
 } as const;
 
 export interface AngavuEntryInput {
@@ -157,7 +187,14 @@ export interface AngavuEntryInput {
   pharmacy?: string;
   staffName?: string;
   drugName?: string;
-  /** @minimum 1 */
+  itemName?: string;
+  sku?: string;
+  unit?: string;
+  /** @minimum 0 */
+  unitCost?: number;
+  /** @minimum 0 */
+  reorderLevel?: number;
+  /** @minimum 0.01 */
   quantity?: number;
   /** @nullable */
   expiryDate?: string | null;
@@ -190,6 +227,8 @@ export type GetAngavuDashboardModule = typeof GetAngavuDashboardModule[keyof typ
 export const GetAngavuDashboardModule = {
   finance: 'finance',
   pharmacy: 'pharmacy',
+  inventory: 'inventory',
+  analytics: 'analytics',
 } as const;
 
 export type GetAngavuLookupsParams = {
@@ -202,5 +241,6 @@ export type GetAngavuLookupsModule = typeof GetAngavuLookupsModule[keyof typeof 
 export const GetAngavuLookupsModule = {
   finance: 'finance',
   pharmacy: 'pharmacy',
+  inventory: 'inventory',
 } as const;
 

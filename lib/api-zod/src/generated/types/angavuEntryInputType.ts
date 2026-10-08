@@ -16,4 +16,7 @@ export const AngavuEntryInputType = {
   Received: 'Received',
   Returned: 'Returned',
   Expired: 'Expired',
+  Stock_In: 'Stock In',
+  Stock_Out: 'Stock Out',
+  Stock_Count: 'Stock Count',
 } as const;

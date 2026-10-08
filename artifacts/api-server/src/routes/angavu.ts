@@ -35,8 +35,10 @@ const requireAuth: RequestHandler = (req, res, next) => {
 
 router.use("/angavu", requireAuth);
 
-type Module = "finance" | "pharmacy";
+type Module = "finance" | "pharmacy" | "inventory" | "analytics";
+type EntryModule = Exclude<Module, "analytics">;
 type Entry = ReturnType<typeof SyncAngavuEntriesBody.parse>["entries"][number];
+type DashboardData = ReturnType<typeof GetAngavuDashboardResponse.parse>;
 
 function spreadsheetIdFromUrl(value: string | null | undefined) {
   if (!value) return null;
@@ -99,6 +101,82 @@ function monthLabel(date: Date) {
   }).format(date);
 }
 
+function demoInventoryDashboard() {
+  const now = new Date();
+  const trend = Array.from({ length: 14 }, (_, index) => {
+    const date = new Date(now);
+    date.setDate(date.getDate() - 13 + index);
+    return {
+      date: date.toISOString().slice(0, 10),
+      label: new Intl.DateTimeFormat("en-KE", {
+        day: "numeric",
+        month: "short",
+        timeZone: "Africa/Nairobi",
+      }).format(date),
+      income: 18 + (index % 4) * 3,
+      expense: 11 + (index % 3) * 2,
+      net: 7 + (index % 2),
+    };
+  });
+  return {
+    module: "inventory" as const,
+    source: "demo" as const,
+    refreshedAt: now.toISOString(),
+    metrics: [
+      { label: "Items tracked", value: 48, unit: "items", change: null, tone: "neutral" as const },
+      { label: "Stock value", value: 684_200, unit: "KES", change: null, tone: "positive" as const },
+      { label: "Low stock", value: 5, unit: "items", change: null, tone: "warning" as const },
+      { label: "Out of stock", value: 1, unit: "items", change: null, tone: "negative" as const },
+    ],
+    trend,
+    alerts: [
+      { id: "demo-inventory-low", title: "Reorder items running low", detail: "Sample inventory includes 5 items at or below their reorder level.", severity: "warning" as const, action: "Review inventory" },
+    ],
+    stock: [
+      { itemName: "Maize flour 2kg", sku: "FOD-204", category: "Dry goods", stock: 7, unit: "bags", reorderLevel: 10, unitCost: 185, location: "Nairobi", status: "LOW STOCK", daysRemaining: null, nearestExpiry: null, expiryDays: null },
+      { itemName: "Cooking oil 1L", sku: "FOD-118", category: "Household", stock: 0, unit: "bottles", reorderLevel: 8, unitCost: 310, location: "Nairobi", status: "OUT OF STOCK", daysRemaining: null, nearestExpiry: null, expiryDays: null },
+      { itemName: "Laundry soap", sku: "HOM-076", category: "Household", stock: 36, unit: "bars", reorderLevel: 12, unitCost: 95, location: "Nakuru", status: "OK", daysRemaining: null, nearestExpiry: null, expiryDays: null },
+    ],
+  };
+}
+
+function demoAnalyticsDashboard() {
+  const now = new Date();
+  const trend = Array.from({ length: 6 }, (_, index) => {
+    const date = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 5 + index, 1),
+    );
+    const income = 735_000 + index * 42_000;
+    const expense = 486_000 + index * 24_000;
+    return {
+      date: `${monthKey(date)}-01`,
+      label: monthLabel(date),
+      income,
+      expense,
+      net: income - expense,
+    };
+  });
+  return {
+    module: "analytics" as const,
+    source: "demo" as const,
+    refreshedAt: now.toISOString(),
+    metrics: [
+      { label: "Income", value: 946_200, unit: "KES", change: 8.4, tone: "positive" as const },
+      { label: "Expenses", value: 618_450, unit: "KES", change: 3.1, tone: "warning" as const },
+      { label: "Net position", value: 327_750, unit: "KES", change: 14.2, tone: "positive" as const },
+      { label: "Low stock items", value: 12, unit: "items", change: null, tone: "warning" as const },
+    ],
+    trend,
+    alerts: [
+      { id: "demo-analytics-stock", title: "Several items need review", detail: "Connect your workbooks to see live stock and finance alerts.", severity: "warning" as const, action: "Review inventory" },
+    ],
+    stock: [
+      { itemName: "Paracetamol 500mg", stock: 34, unit: "tablets", daysRemaining: 6, status: "CRITICAL", nearestExpiry: null, expiryDays: null },
+      { itemName: "Maize flour 2kg", sku: "FOD-204", category: "Dry goods", stock: 7, unit: "bags", reorderLevel: 10, unitCost: 185, location: "Nairobi", status: "LOW STOCK", daysRemaining: null, nearestExpiry: null, expiryDays: null },
+    ],
+  };
+}
+
 function demoDashboard(module: Module) {
   const now = new Date();
   if (module === "finance") {
@@ -140,6 +218,9 @@ function demoDashboard(module: Module) {
     };
   }
 
+  if (module === "analytics") return demoAnalyticsDashboard();
+  if (module === "inventory") return demoInventoryDashboard();
+
   const trend = Array.from({ length: 14 }, (_, index) => {
     const date = new Date(now);
     date.setDate(date.getDate() - 13 + index);
@@ -178,10 +259,10 @@ function demoDashboard(module: Module) {
       },
     ],
     stock: [
-      { drugName: "Paracetamol 500mg", stock: 34, daysRemaining: 6, status: "CRITICAL", nearestExpiry: null, expiryDays: null },
-      { drugName: "Amoxicillin 250mg", stock: 0, daysRemaining: 0, status: "STOCKOUT", nearestExpiry: null, expiryDays: null },
-      { drugName: "Cetirizine 10mg", stock: 92, daysRemaining: 28, status: "OK", nearestExpiry: null, expiryDays: null },
-      { drugName: "Oral rehydration salts", stock: 16, daysRemaining: 5, status: "CRITICAL", nearestExpiry: null, expiryDays: null },
+      { itemName: "Paracetamol 500mg", stock: 34, daysRemaining: 6, unit: "tablets", status: "CRITICAL", nearestExpiry: null, expiryDays: null },
+      { itemName: "Amoxicillin 250mg", stock: 0, daysRemaining: 0, unit: "capsules", status: "STOCKOUT", nearestExpiry: null, expiryDays: null },
+      { itemName: "Cetirizine 10mg", stock: 92, daysRemaining: 28, unit: "tablets", status: "OK", nearestExpiry: null, expiryDays: null },
+      { itemName: "Oral rehydration salts", stock: 16, daysRemaining: 5, unit: "sachets", status: "CRITICAL", nearestExpiry: null, expiryDays: null },
     ],
   };
 }
@@ -327,7 +408,8 @@ async function pharmacyDashboard(spreadsheetId: string) {
       const expiryDate = dateValue(expiryValue);
       const daysValue = numberValue(row[5]);
       return {
-        drugName: String(row[0]).trim(),
+        itemName: String(row[0]).trim(),
+        unit: String(row[1] ?? "").trim() || null,
         stock: numberValue(row[2]),
         daysRemaining: Number.isFinite(daysValue) ? daysValue : 0,
         status: String(row[7] ?? "UNKNOWN").trim() || "UNKNOWN",
@@ -387,6 +469,187 @@ async function pharmacyDashboard(spreadsheetId: string) {
   });
 }
 
+async function inventorySheetName(spreadsheetId: string) {
+  const metadata = await readSheetMetadata(spreadsheetId);
+  const title = metadata.sheets
+    ?.map((sheet) => sheet.properties?.title)
+    .find((name) => name?.trim().toLowerCase() === "stock movements");
+  if (!title) {
+    throw new Error('Add a tab named "Stock Movements" to the inventory workbook.');
+  }
+  return title;
+}
+
+async function inventoryDashboard(spreadsheetId: string) {
+  const sheetTitle = await inventorySheetName(spreadsheetId);
+  const result = await readSheetValues(
+    spreadsheetId,
+    `${quoteSheetName(sheetTitle)}!A1:L2000`,
+  );
+  const items = new Map<string, {
+    itemName: string;
+    sku: string | null;
+    category: string | null;
+    unit: string | null;
+    stock: number;
+    reorderLevel: number | null;
+    unitCost: number | null;
+    location: string | null;
+  }>();
+  const daily = new Map<string, { date: Date; incoming: number; outgoing: number }>();
+
+  for (const row of (result.values ?? []).slice(1)) {
+    const itemName = String(row[2] ?? "").trim();
+    if (!itemName) continue;
+    const sku = String(row[3] ?? "").trim() || null;
+    const key = (sku || itemName).toLowerCase();
+    const current = items.get(key) ?? {
+      itemName,
+      sku,
+      category: null,
+      unit: null,
+      stock: 0,
+      reorderLevel: null,
+      unitCost: null,
+      location: null,
+    };
+    const movement = String(row[1] ?? "").trim().toLowerCase();
+    const quantity = numberValue(row[5]);
+    if (movement === "stock in") current.stock += quantity;
+    if (movement === "stock out") current.stock -= quantity;
+    if (movement === "stock count") current.stock = quantity;
+    current.category = String(row[4] ?? "").trim() || current.category;
+    current.unit = String(row[6] ?? "").trim() || current.unit;
+    current.unitCost = row[7] === undefined || row[7] === "" ? current.unitCost : numberValue(row[7]);
+    current.reorderLevel = row[8] === undefined || row[8] === "" ? current.reorderLevel : numberValue(row[8]);
+    current.location = String(row[9] ?? "").trim() || current.location;
+    items.set(key, current);
+
+    const date = dateValue(row[0]);
+    if (date && (movement === "stock in" || movement === "stock out")) {
+      const day = date.toISOString().slice(0, 10);
+      const point = daily.get(day) ?? { date, incoming: 0, outgoing: 0 };
+      if (movement === "stock in") point.incoming += quantity;
+      if (movement === "stock out") point.outgoing += quantity;
+      daily.set(day, point);
+    }
+  }
+
+  const stock = [...items.values()].map((item) => {
+    const status = item.stock <= 0
+      ? "OUT OF STOCK"
+      : item.reorderLevel !== null && item.stock <= item.reorderLevel
+        ? "LOW STOCK"
+        : "OK";
+    return {
+      ...item,
+      status,
+      daysRemaining: null,
+      nearestExpiry: null,
+      expiryDays: null,
+    };
+  });
+  const low = stock.filter((item) => item.status === "LOW STOCK");
+  const out = stock.filter((item) => item.status === "OUT OF STOCK");
+  const stockValue = stock.reduce(
+    (total, item) => total + item.stock * (item.unitCost ?? 0),
+    0,
+  );
+  const trend = [...daily.values()]
+    .sort((a, b) => a.date.valueOf() - b.date.valueOf())
+    .slice(-14)
+    .map((point) => ({
+      date: point.date.toISOString().slice(0, 10),
+      label: new Intl.DateTimeFormat("en-KE", {
+        day: "numeric",
+        month: "short",
+        timeZone: "Africa/Nairobi",
+      }).format(point.date),
+      income: point.incoming,
+      expense: point.outgoing,
+      net: point.incoming - point.outgoing,
+    }));
+  const alerts = [
+    ...out.slice(0, 4).map((item, index) => ({
+      id: `inventory-out-${index}`,
+      title: `${item.itemName} is out of stock`,
+      detail: item.location ? `Check stock at ${item.location}.` : "Reorder or update the stock count.",
+      severity: "critical" as const,
+      action: "Review inventory",
+    })),
+    ...low.slice(0, 4).map((item, index) => ({
+      id: `inventory-low-${index}`,
+      title: `${item.itemName} is running low`,
+      detail: `${item.stock} ${item.unit ?? "units"} remaining; reorder level is ${item.reorderLevel}.`,
+      severity: "warning" as const,
+      action: "Review inventory",
+    })),
+  ].slice(0, 6);
+
+  return GetAngavuDashboardResponse.parse({
+    module: "inventory",
+    source: "sheets",
+    refreshedAt: new Date().toISOString(),
+    metrics: [
+      { label: "Items tracked", value: stock.length, unit: "items", change: null, tone: "neutral" },
+      { label: "Stock value", value: stockValue, unit: "KES", change: null, tone: "positive" },
+      { label: "Low stock", value: low.length, unit: "items", change: null, tone: low.length ? "warning" : "positive" },
+      { label: "Out of stock", value: out.length, unit: "items", change: null, tone: out.length ? "negative" : "positive" },
+    ],
+    trend,
+    alerts,
+    stock,
+  });
+}
+
+async function analyticsDashboard(settings: Awaited<ReturnType<typeof getSettings>>) {
+  const [finance, pharmacy, inventory] = await Promise.all([
+    settings?.financeSpreadsheetId ? financeDashboard(settings.financeSpreadsheetId) : null,
+    settings?.pharmacySpreadsheetId ? pharmacyDashboard(settings.pharmacySpreadsheetId) : null,
+    settings?.inventorySpreadsheetId ? inventoryDashboard(settings.inventorySpreadsheetId) : null,
+  ]);
+  const available = [finance, pharmacy, inventory].filter(
+    (dashboard): dashboard is DashboardData => dashboard !== null,
+  );
+  if (!available.length) {
+    return GetAngavuDashboardResponse.parse(demoAnalyticsDashboard());
+  }
+
+  const metrics: DashboardData["metrics"] = [];
+  for (const label of ["Income", "Expenses", "Net position"] as const) {
+    const metric = finance?.metrics.find((candidate) => candidate.label === label);
+    if (metric) metrics.push(metric);
+  }
+  for (const [dashboard, label] of [
+    [pharmacy, "Pharmacy low stock"],
+    [inventory, "Inventory low stock"],
+  ] as const) {
+    const metric = dashboard?.metrics.find((candidate) =>
+      candidate.label === (label.startsWith("Pharmacy") ? "Low stock" : "Low stock"),
+    );
+    if (metric) metrics.push({ ...metric, label });
+  }
+  const inventoryValue = inventory?.metrics.find((metric) => metric.label === "Stock value");
+  if (inventoryValue) metrics.push(inventoryValue);
+
+  const alerts = available.flatMap((dashboard) =>
+    dashboard.alerts.map((alert) => ({
+      ...alert,
+      id: `${dashboard.module}-${alert.id}`,
+      detail: `${dashboard.module[0].toUpperCase()}${dashboard.module.slice(1)}: ${alert.detail}`,
+    })),
+  );
+  return GetAngavuDashboardResponse.parse({
+    module: "analytics",
+    source: available.length === 3 ? "sheets" : "mixed",
+    refreshedAt: new Date().toISOString(),
+    metrics,
+    trend: finance?.trend ?? [],
+    alerts,
+    stock: [...(pharmacy?.stock ?? []), ...(inventory?.stock ?? [])],
+  });
+}
+
 router.get("/angavu/settings", async (req, res, next) => {
   try {
     const userId = getAuth(req).userId!;
@@ -398,6 +661,9 @@ router.get("/angavu/settings", async (req, res, next) => {
         ),
         pharmacySpreadsheetUrl: spreadsheetUrlFromId(
           settings?.pharmacySpreadsheetId ?? null,
+        ),
+        inventorySpreadsheetUrl: spreadsheetUrlFromId(
+          settings?.inventorySpreadsheetId ?? null,
         ),
         googleSheetsReady: true,
       }),
@@ -420,24 +686,32 @@ router.put("/angavu/settings", async (req, res, next) => {
       body.pharmacySpreadsheetUrl === undefined
         ? previous?.pharmacySpreadsheetId ?? null
         : spreadsheetIdFromUrl(body.pharmacySpreadsheetUrl);
+    const inventorySpreadsheetId =
+      body.inventorySpreadsheetUrl === undefined
+        ? previous?.inventorySpreadsheetId ?? null
+        : spreadsheetIdFromUrl(body.inventorySpreadsheetUrl);
 
     await db
       .insert(angavuSettingsTable)
-      .values({ userId, financeSpreadsheetId, pharmacySpreadsheetId })
+      .values({ userId, financeSpreadsheetId, pharmacySpreadsheetId, inventorySpreadsheetId })
       .onConflictDoUpdate({
         target: angavuSettingsTable.userId,
-        set: { financeSpreadsheetId, pharmacySpreadsheetId },
+        set: { financeSpreadsheetId, pharmacySpreadsheetId, inventorySpreadsheetId },
       });
 
     res.json(
       UpdateAngavuSettingsResponse.parse({
         financeSpreadsheetUrl: spreadsheetUrlFromId(financeSpreadsheetId),
         pharmacySpreadsheetUrl: spreadsheetUrlFromId(pharmacySpreadsheetId),
+        inventorySpreadsheetUrl: spreadsheetUrlFromId(inventorySpreadsheetId),
         googleSheetsReady: true,
       }),
     );
   } catch (error) {
-    if (error instanceof Error && error.message.startsWith("Use a Google Sheets")) {
+    if (error instanceof Error && (
+      error.message.startsWith("Enter a valid Google Sheets") ||
+      error.message.startsWith("Use a Google Sheets")
+    )) {
       res.status(400).json({ error: error.message });
       return;
     }
@@ -450,18 +724,25 @@ router.get("/angavu/dashboard", async (req, res, next) => {
     const { module } = GetAngavuDashboardQueryParams.parse(req.query);
     const userId = getAuth(req).userId!;
     const settings = await getSettings(userId);
+    if (module === "analytics") {
+      res.json(await analyticsDashboard(settings));
+      return;
+    }
     const spreadsheetId =
       module === "finance"
         ? settings?.financeSpreadsheetId
-        : settings?.pharmacySpreadsheetId;
+        : module === "pharmacy"
+          ? settings?.pharmacySpreadsheetId
+          : settings?.inventorySpreadsheetId;
     if (!spreadsheetId) {
       res.json(GetAngavuDashboardResponse.parse(demoDashboard(module)));
       return;
     }
-    const result =
-      module === "finance"
-        ? await financeDashboard(spreadsheetId)
-        : await pharmacyDashboard(spreadsheetId);
+    const result = module === "finance"
+      ? await financeDashboard(spreadsheetId)
+      : module === "pharmacy"
+        ? await pharmacyDashboard(spreadsheetId)
+        : await inventoryDashboard(spreadsheetId);
     res.json(result);
   } catch (error) {
     next(error);
@@ -476,7 +757,9 @@ router.get("/angavu/lookups", async (req, res, next) => {
     const spreadsheetId =
       module === "finance"
         ? settings?.financeSpreadsheetId
-        : settings?.pharmacySpreadsheetId;
+        : module === "pharmacy"
+          ? settings?.pharmacySpreadsheetId
+          : settings?.inventorySpreadsheetId;
     if (!spreadsheetId) {
       res.json(
         GetAngavuLookupsResponse.parse(
@@ -486,7 +769,8 @@ router.get("/angavu/lookups", async (req, res, next) => {
                 categories: ["Employee Salaries", "KPLC", "Rent", "Supplier Claims", "Wifi", "Other Expense"],
                 products: [],
               }
-            : {
+            : module === "pharmacy"
+              ? {
                 branches: ["Mary Wanjiku Pharmacy"],
                 categories: [],
                 products: [
@@ -494,7 +778,15 @@ router.get("/angavu/lookups", async (req, res, next) => {
                   { name: "Amoxicillin 250mg", unit: "capsules" },
                   { name: "Cetirizine 10mg", unit: "tablets" },
                 ],
-              },
+              }
+              : {
+                  branches: ["Nairobi", "Nakuru"],
+                  categories: ["Dry goods", "Household"],
+                  products: [
+                    { name: "Maize flour 2kg", unit: "bags", sku: "FOD-204", unitCost: 185, reorderLevel: 10 },
+                    { name: "Cooking oil 1L", unit: "bottles", sku: "FOD-118", unitCost: 310, reorderLevel: 8 },
+                  ],
+                },
         ),
       );
       return;
@@ -525,21 +817,64 @@ router.get("/angavu/lookups", async (req, res, next) => {
       return;
     }
 
-    const inventoryTitle = await pharmacySheetName(spreadsheetId);
-    const inventory = await readSheetValues(
+    if (module === "pharmacy") {
+      const inventoryTitle = await pharmacySheetName(spreadsheetId);
+      const inventory = await readSheetValues(
+        spreadsheetId,
+        `${quoteSheetName(inventoryTitle)}!A4:B100`,
+      );
+      res.json(
+        GetAngavuLookupsResponse.parse({
+          branches: [inventoryTitle],
+          categories: [],
+          products: (inventory.values ?? [])
+            .filter((row) => String(row[0] ?? "").trim())
+            .map((row) => ({
+              name: String(row[0]).trim(),
+              unit: String(row[1] ?? "units").trim() || "units",
+            })),
+        }),
+      );
+      return;
+    }
+
+    const sheetTitle = await inventorySheetName(spreadsheetId);
+    const inventoryRows = await readSheetValues(
       spreadsheetId,
-      `${quoteSheetName(inventoryTitle)}!A4:B100`,
+      `${quoteSheetName(sheetTitle)}!A1:L2000`,
     );
+    const rows = (inventoryRows.values ?? []).slice(1);
+    const products = new Map<string, {
+      name: string;
+      unit: string;
+      sku: string | null;
+      unitCost: number | null;
+      reorderLevel: number | null;
+    }>();
+    const locations = new Set<string>();
+    const categories = new Set<string>();
+    for (const row of rows) {
+      const name = String(row[2] ?? "").trim();
+      if (!name) continue;
+      const sku = String(row[3] ?? "").trim() || null;
+      const key = (sku || name).toLowerCase();
+      products.set(key, {
+        name,
+        unit: String(row[6] ?? "units").trim() || "units",
+        sku,
+        unitCost: row[7] === undefined || row[7] === "" ? null : numberValue(row[7]),
+        reorderLevel: row[8] === undefined || row[8] === "" ? null : numberValue(row[8]),
+      });
+      const location = String(row[9] ?? "").trim();
+      const category = String(row[4] ?? "").trim();
+      if (location) locations.add(location);
+      if (category) categories.add(category);
+    }
     res.json(
       GetAngavuLookupsResponse.parse({
-        branches: [inventoryTitle],
-        categories: [],
-        products: (inventory.values ?? [])
-          .filter((row) => String(row[0] ?? "").trim())
-          .map((row) => ({
-            name: String(row[0]).trim(),
-            unit: String(row[1] ?? "units").trim() || "units",
-          })),
+        branches: [...locations],
+        categories: [...categories],
+        products: [...products.values()],
       }),
     );
   } catch (error) {
@@ -579,9 +914,26 @@ function pharmacyRow(entry: Entry) {
   ];
 }
 
+function inventoryRow(entry: Entry) {
+  return [
+    entry.date,
+    entry.type,
+    entry.itemName ?? "",
+    entry.sku ?? "",
+    entry.category ?? "",
+    entry.quantity ?? 0,
+    entry.unit ?? "",
+    entry.unitCost ?? "",
+    entry.reorderLevel ?? "",
+    entry.branch ?? "",
+    entry.notes ?? "",
+    entry.id,
+  ];
+}
+
 async function syncModuleEntries(
   userId: string,
-  module: Module,
+  module: EntryModule,
   spreadsheetId: string,
   entries: Entry[],
   syncedIds: string[],
@@ -608,7 +960,9 @@ async function syncModuleEntries(
     const idRange =
       module === "finance"
         ? "'Daily Transactions'!L6:L2000"
-        : "'Form Responses 1'!J2:J2000";
+        : module === "pharmacy"
+          ? "'Form Responses 1'!J2:J2000"
+          : `${quoteSheetName(await inventorySheetName(spreadsheetId))}!L2:L2000`;
     const existing = await readSheetValues(spreadsheetId, idRange);
     const sheetIds = new Set(
       (existing.values ?? [])
@@ -621,11 +975,19 @@ async function syncModuleEntries(
       const target =
         module === "finance"
           ? "'Daily Transactions'!A5:L"
-          : "'Form Responses 1'!A1:J";
+          : module === "pharmacy"
+            ? "'Form Responses 1'!A1:J"
+            : `${quoteSheetName(await inventorySheetName(spreadsheetId))}!A1:L`;
       await appendSheetRows(
         spreadsheetId,
         target,
-        append.map(module === "finance" ? financeRow : pharmacyRow),
+        append.map(
+          module === "finance"
+            ? financeRow
+            : module === "pharmacy"
+              ? pharmacyRow
+              : inventoryRow,
+        ),
       );
     }
 
@@ -658,15 +1020,33 @@ router.post("/angavu/sync", async (req, res, next) => {
     const { entries } = SyncAngavuEntriesBody.parse(req.body);
     const settings = await getSettings(userId);
     const syncedIds: string[] = [];
-    const failures: Array<{ id: string; message: string }> = [];
+    const allowedTypes: Record<EntryModule, readonly string[]> = {
+      finance: ["Income", "Expense"],
+      pharmacy: ["Dispensed", "Received", "Returned", "Expired"],
+      inventory: ["Stock In", "Stock Out", "Stock Count"],
+    };
+    const invalidEntries = entries.filter(
+      (entry) => !allowedTypes[entry.module].includes(entry.type),
+    );
+    const validEntries = entries.filter(
+      (entry) => allowedTypes[entry.module].includes(entry.type),
+    );
+    const failures: Array<{ id: string; message: string }> = invalidEntries.map(
+      (entry) => ({
+        id: entry.id,
+        message: `Entry type "${entry.type}" is not valid for ${entry.module}.`,
+      }),
+    );
 
-    for (const module of ["finance", "pharmacy"] as const) {
-      const moduleEntries = entries.filter((entry) => entry.module === module);
+    for (const module of ["finance", "pharmacy", "inventory"] as const) {
+      const moduleEntries = validEntries.filter((entry) => entry.module === module);
       if (!moduleEntries.length) continue;
       const spreadsheetId =
         module === "finance"
           ? settings?.financeSpreadsheetId
-          : settings?.pharmacySpreadsheetId;
+          : module === "pharmacy"
+            ? settings?.pharmacySpreadsheetId
+            : settings?.inventorySpreadsheetId;
       if (!spreadsheetId) {
         failures.push(
           ...moduleEntries.map((entry) => ({

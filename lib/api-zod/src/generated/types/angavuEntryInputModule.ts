@@ -12,4 +12,5 @@ export type AngavuEntryInputModule = typeof AngavuEntryInputModule[keyof typeof 
 export const AngavuEntryInputModule = {
   finance: 'finance',
   pharmacy: 'pharmacy',
+  inventory: 'inventory',
 } as const;

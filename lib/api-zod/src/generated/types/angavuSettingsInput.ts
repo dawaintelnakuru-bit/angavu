@@ -11,4 +11,6 @@ export interface AngavuSettingsInput {
   financeSpreadsheetUrl?: string | null;
   /** @nullable */
   pharmacySpreadsheetUrl?: string | null;
+  /** @nullable */
+  inventorySpreadsheetUrl?: string | null;
 }
