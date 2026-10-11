@@ -1,0 +1,367 @@
+import { Link } from "wouter";
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  CirclePlay,
+  FileSpreadsheet,
+  HeartPulse,
+  LineChart,
+  ShieldCheck,
+  Sparkles,
+  Sun,
+  Lock,
+} from "lucide-react";
+import { Wordmark } from "@/components/AppShell";
+
+const insights = [
+  {
+    n: "01",
+    title: "Know what came in.",
+    text: "See income, expenses and what is left — without building a report first.",
+    icon: LineChart,
+  },
+  {
+    n: "02",
+    title: "Catch what needs attention.",
+    text: "Low stock, near-expiry medicines and spending changes show up before they become a surprise.",
+    icon: HeartPulse,
+  },
+  {
+    n: "03",
+    title: "Keep your own tools.",
+    text: "Your spreadsheets remain yours. Angavu gives finance, pharmacy and inventory a clearer point of view.",
+    icon: FileSpreadsheet,
+  },
+];
+
+export default function Landing() {
+  return (
+    <div className="min-h-[100dvh] overflow-hidden bg-[#f8f5ed] text-[#233941]">
+      <header className="mx-auto flex max-w-[1320px] items-center justify-between px-5 py-5 md:px-10">
+        <Wordmark />
+        <nav className="hidden items-center gap-8 text-[13px] font-medium text-[#61716f] md:flex">
+          <a
+            href="#how-it-works"
+            className="hover:text-[#20363d]"
+            data-testid="link-how-it-works"
+          >
+            How it works
+          </a>
+          <a
+            href="#for-your-business"
+            className="hover:text-[#20363d]"
+            data-testid="link-for-business"
+          >
+            For your business
+          </a>
+          <a
+            href="#trust"
+            className="hover:text-[#20363d]"
+            data-testid="link-data-trust"
+          >
+            Privacy & Security
+          </a>
+        </nav>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/sign-in"
+            className="rounded-xl px-4 py-2.5 text-[13px] font-semibold hover:bg-[#eee9de]"
+            data-testid="link-sign-in"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/sign-up"
+            className="rounded-xl bg-[#20363d] px-4 py-2.5 text-[13px] font-semibold text-[#fff9ea] shadow-sm transition-transform hover:-translate-y-0.5"
+            data-testid="link-get-started"
+          >
+            Get started <span className="ml-1">↗</span>
+          </Link>
+        </div>
+      </header>
+
+      <main>
+        <section className="relative mx-auto grid max-w-[1320px] items-center gap-10 px-5 pb-20 pt-10 md:min-h-[650px] md:grid-cols-[1.02fr_.98fr] md:px-10 md:pb-24 md:pt-16">
+          <div className="absolute -left-36 top-4 h-[360px] w-[360px] rounded-full bg-[#ecd58e]/25 blur-[1px]" />
+          <div className="relative z-10 fade-up">
+            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-[#ded7c6] bg-[#fdfbf5] px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[.13em] text-[#64736c]">
+              <Sparkles size={13} className="text-[#cf8e1c]" /> A clearer view for Kenyan business
+            </div>
+            <h1 className="max-w-[700px] font-display text-[clamp(3.5rem,7.7vw,6.7rem)] font-extrabold leading-[.96] tracking-[-.075em]">
+              Your numbers.<br />
+              <span className="relative z-10 text-[#bc7915]">In the light.</span>
+            </h1>
+            <p className="mt-7 max-w-[530px] text-[17px] leading-7 text-[#61716f] md:text-[18px]">
+              Angavu brings your finance, pharmacy and inventory spreadsheets into one clear, everyday view — so you can act on what your business is telling you.
+            </p>
+            <div className="mt-9 flex flex-wrap items-center gap-3">
+              <Link
+                href="/sign-up"
+                className="inline-flex items-center gap-3 rounded-xl bg-[#20363d] px-5 py-3.5 text-[14px] font-semibold text-[#fff9ea] shadow-[0_10px_26px_rgba(32,54,61,.16)] transition-all hover:-translate-y-0.5 hover:bg-[#2b4950]"
+                data-testid="link-start-free"
+              >
+                Bring your business into focus <ArrowRight size={16} />
+              </Link>
+              <a
+                href="#how-it-works"
+                className="inline-flex items-center gap-2 px-4 py-3 text-[13px] font-semibold text-[#586966]"
+              >
+                <CirclePlay size={17} /> See how it works
+              </a>
+            </div>
+            <div className="mt-9 flex flex-wrap gap-x-6 gap-y-2 text-[11px] font-medium text-[#72807b]">
+              <span className="inline-flex items-center gap-1.5">
+                <Check size={13} className="text-[#438166]" /> Works with Google Sheets
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <ShieldCheck size={13} className="text-[#438166]" /> Private & Encrypted Server Bridge
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Lock size={13} className="text-[#438166]" /> Data Never Shared
+              </span>
+            </div>
+          </div>
+          <div className="relative fade-up delay-1">
+            <div className="absolute -right-12 -top-8 h-60 w-60 rounded-full bg-[#e7c770]/25 blur-3xl" />
+            <div className="relative overflow-hidden rounded-[28px] border border-[#d9d4c8] bg-[#fffdf8] p-4 shadow-[0_28px_80px_rgba(49,59,56,.13)] sm:p-6">
+              <div className="flex items-center justify-between border-b border-[#eee9de] pb-4">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[.18em] text-[#7d8982]">
+                    Illustrative preview
+                  </div>
+                  <div className="mt-1 font-display text-lg font-bold">
+                    Good morning, Wanjiku
+                  </div>
+                </div>
+                <div className="rounded-full bg-[#eaf2e9] px-3 py-1.5 text-[10px] font-semibold text-[#45715a]">
+                  Example view
+                </div>
+              </div>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                <div className="rounded-2xl bg-[#f5f1e7] p-4">
+                  <div className="text-[10px] font-medium text-[#78817b]">Today’s sales</div>
+                  <div className="mt-2 font-data text-xl font-medium">KSh 48,620</div>
+                  <div className="mt-2 text-[10px] font-semibold text-[#408266]">↑ 12.8% this week</div>
+                </div>
+                <div className="rounded-2xl bg-[#e9f0eb] p-4">
+                  <div className="text-[10px] font-medium text-[#78817b]">Net position</div>
+                  <div className="mt-2 font-data text-xl font-medium">KSh 16,430</div>
+                  <div className="mt-2 text-[10px] font-semibold text-[#408266]">Healthy margin</div>
+                </div>
+              </div>
+              <div className="mt-4 rounded-2xl border border-[#eee9de] p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-xs font-semibold">Money in & out</div>
+                    <div className="mt-1 text-[10px] text-[#87918a]">This week · Nakuru Branch</div>
+                  </div>
+                  <div className="flex gap-3 text-[9px] text-[#77817b]">
+                    <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-[#ca8b22]" />In</span>
+                    <span><i className="mr-1 inline-block h-2 w-2 rounded-full bg-[#518b78]" />Out</span>
+                  </div>
+                </div>
+                <div className="relative mt-6 h-[125px] border-b border-l border-[#e9e4d8]">
+                  <div className="absolute inset-x-0 top-0 border-t border-dashed border-[#e9e4d8]" />
+                  <div className="absolute inset-x-0 top-1/2 border-t border-dashed border-[#e9e4d8]" />
+                  <svg viewBox="0 0 560 120" className="h-full w-full overflow-visible" preserveAspectRatio="none">
+                    <path d="M0 88 C28 80 40 92 78 68 S130 76 160 49 208 66 243 44 291 56 322 32 360 50 402 35 452 37 480 18 530 26 560 9" fill="none" stroke="#ca8b22" strokeWidth="3" strokeLinecap="round" />
+                    <path d="M0 100 C35 97 53 83 78 92 S126 79 160 88 203 78 243 84 288 72 322 80 360 65 402 75 449 57 480 66 526 48 560 55" fill="none" stroke="#518b78" strokeWidth="2.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="mt-2 flex justify-between text-[9px] text-[#98a099]">
+                  <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                </div>
+              </div>
+              <div className="mt-3 flex items-center gap-3 rounded-xl bg-[#fbf3dc] px-3 py-2.5">
+                <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#f0dfa9] text-[#926717]">
+                  <HeartPulse size={14} />
+                </span>
+                <div className="flex-1">
+                  <div className="text-[10px] font-semibold">2 items need a look</div>
+                  <div className="text-[9px] text-[#7f8178]">One running low · one nearing expiry</div>
+                </div>
+                <ArrowUpRight size={14} className="text-[#9c751f]" />
+              </div>
+            </div>
+            <div className="absolute -bottom-5 -left-5 hidden rounded-xl border border-[#e1dacb] bg-[#fffdf8] px-4 py-3 shadow-lg sm:block">
+              <div className="font-data text-[10px] text-[#62716c]">SAMPLE SNAPSHOT</div>
+              <div className="mt-1 text-xs font-semibold">One picture. Two parts.</div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-[#e6e0d2] bg-[#f1ede3]">
+          <div className="mx-auto flex max-w-[1320px] flex-col gap-3 px-5 py-6 sm:flex-row sm:items-center sm:justify-between md:px-10">
+            <p className="text-xs font-semibold uppercase tracking-[.17em] text-[#7b847b]">
+              Built for the rhythm of your business
+            </p>
+            <div className="flex flex-wrap gap-3 text-[11px] font-medium text-[#526762]">
+              <span className="rounded-full border border-[#dad4c6] px-3 py-1.5">Retail & wholesale</span>
+              <span className="rounded-full border border-[#dad4c6] px-3 py-1.5">Independent pharmacies</span>
+              <span className="rounded-full border border-[#dad4c6] px-3 py-1.5">Multi-branch teams</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="how-it-works" className="mx-auto max-w-[1320px] px-5 py-24 md:px-10 md:py-32">
+          <div className="grid gap-10 md:grid-cols-[.78fr_1.22fr]">
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[.19em] text-[#bc7915]">
+                Less hunting. More knowing.
+              </div>
+              <h2 className="mt-5 max-w-md font-display text-4xl font-bold leading-[1.08] tracking-[-.05em] md:text-5xl">
+                The useful part of your spreadsheets, made visible.
+              </h2>
+              <p className="mt-5 max-w-sm text-sm leading-6 text-[#697671]">
+                No new system to wrestle with. Angavu makes sense of the records you already keep.
+              </p>
+              <a
+                href="#for-your-business"
+                className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-[#263d42]"
+              >
+                A closer look <ArrowDown size={15} />
+              </a>
+            </div>
+            <div className="divide-y divide-[#e5dfd2] border-y border-[#e5dfd2]">
+              {insights.map((item) => (
+                <article
+                  key={item.n}
+                  className="grid gap-4 py-6 sm:grid-cols-[58px_1fr_1.1fr] sm:items-center"
+                >
+                  <div className="font-data text-xs text-[#bb7f20]">{item.n}</div>
+                  <div className="flex items-center gap-3">
+                    <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#e8eee6] text-[#547868]">
+                      <item.icon size={17} />
+                    </span>
+                    <h3 className="font-display text-lg font-bold tracking-[-.03em]">
+                      {item.title}
+                    </h3>
+                  </div>
+                  <p className="text-[13px] leading-5 text-[#74807b]">{item.text}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="for-your-business"
+          className="relative overflow-hidden bg-[#20363d] py-20 text-[#f6f1e6] md:py-28"
+        >
+          <div className="app-grid absolute inset-0 opacity-40" />
+          <div className="relative mx-auto grid max-w-[1320px] gap-14 px-5 md:grid-cols-[.85fr_1.15fr] md:px-10">
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[.2em] text-[#e9b653]">
+                One working day, clearer
+              </div>
+              <h2 className="mt-5 max-w-lg font-display text-4xl font-bold leading-tight tracking-[-.05em] md:text-5xl">
+                See the whole shop, not just the till.
+              </h2>
+              <p className="mt-5 max-w-md text-sm leading-6 text-[#c0cbc4]">
+                For a growing Kenyan business, a good day is made up of a hundred small decisions. Let the numbers help with the next one.
+              </p>
+              <Link
+                href="/sign-up"
+                className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#e7aa3a] px-5 py-3 text-sm font-bold text-[#20363d] hover:bg-[#f0bd5e]"
+                data-testid="link-create-workspace"
+              >
+                Create your workspace <ArrowRight size={15} />
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-px self-center overflow-hidden rounded-2xl border border-[#446068] bg-[#446068]">
+              <div className="bg-[#29434a] p-5 sm:p-7">
+                <div className="font-data text-3xl text-[#e7aa3a]">Finance</div>
+                <p className="mt-3 text-xs leading-5 text-[#c0cbc4]">
+                  Income, expenses, payment methods and your daily net position.
+                </p>
+              </div>
+              <div className="bg-[#29434a] p-5 sm:p-7">
+                <div className="font-data text-3xl text-[#91b69b]">Pharmacy</div>
+                <p className="mt-3 text-xs leading-5 text-[#c0cbc4]">
+                  Stock levels, medicines close to expiry and what to replenish.
+                </p>
+              </div>
+              <div className="col-span-2 flex items-center justify-between bg-[#29434a] px-5 py-4 sm:px-7">
+                <span className="text-xs text-[#d0d8d2]">
+                  All connected securely to the sheets you already use.
+                </span>
+                <FileSpreadsheet size={19} className="text-[#e7aa3a]" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="trust" className="mx-auto grid max-w-[1320px] gap-12 px-5 py-20 md:grid-cols-[1fr_1fr] md:px-10 md:py-28">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-[.19em] text-[#bc7915]">
+              Privacy & Security by Design
+            </div>
+            <h2 className="mt-5 font-display text-4xl font-bold tracking-[-.05em] md:text-5xl">
+              Keep your workflow.<br />
+              Keep your privacy.
+            </h2>
+          </div>
+          <div className="space-y-6 pt-1">
+            <p className="text-[15px] leading-7 text-[#697671]">
+              Angavu acts as an encrypted intelligence bridge. Your database and spreadsheet connection credentials remain strictly protected on the server, never exposed in frontend code.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-[#e5dfd2] bg-[#fcfaf4] p-5">
+                <ShieldCheck size={18} className="text-[#4c856c]" />
+                <div className="mt-4 text-sm font-semibold">Your records stay yours</div>
+                <p className="mt-2 text-xs leading-5 text-[#75807b]">
+                  Server-side security ensures spreadsheet access is isolated and protected.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-[#e5dfd2] bg-[#fcfaf4] p-5">
+                <Sun size={18} className="text-[#c3861b]" />
+                <div className="mt-4 text-sm font-semibold">Clarity, without delay</div>
+                <p className="mt-2 text-xs leading-5 text-[#75807b]">
+                  A clean, immediate read on what deserves your attention Monday morning.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-5 pb-20 md:px-10 md:pb-24">
+          <div className="mx-auto flex max-w-[1320px] flex-col items-start justify-between gap-7 rounded-[28px] bg-[#e8d7ad] p-7 sm:p-10 md:flex-row md:items-center md:px-14 md:py-12">
+            <div>
+              <div className="text-[10px] font-semibold uppercase tracking-[.2em] text-[#786543]">
+                Start seeing it clearly
+              </div>
+              <h2 className="mt-3 max-w-xl font-display text-3xl font-bold tracking-[-.05em] md:text-4xl">
+                The next good decision starts with a clear view.
+              </h2>
+            </div>
+            <Link
+              href="/sign-up"
+              className="inline-flex shrink-0 items-center gap-3 rounded-xl bg-[#20363d] px-5 py-3.5 text-sm font-semibold text-[#fff9ea]"
+              data-testid="link-get-started-bottom"
+            >
+              Get started <ArrowUpRight size={16} />
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <footer className="border-t border-[#e5dfd2] px-5 py-7 md:px-10">
+        <div className="mx-auto flex max-w-[1320px] flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <Wordmark />
+          <div className="text-[11px] text-[#818a83]">
+            Business clarity, built for the work you do every day.{" "}
+            <span className="ml-1">© Angavu</span>
+          </div>
+          <Link
+            href="/sign-in"
+            className="text-xs font-semibold text-[#526762] hover:underline"
+          >
+            Sign in <ArrowUpRight className="ml-1 inline" size={12} />
+          </Link>
+        </div>
+      </footer>
+    </div>
+  );
+}

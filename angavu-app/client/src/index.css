@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@layer theme, base, clerk, components, utilities;
+@import 'tailwindcss';
+@import '@clerk/themes/shadcn.css';
+@import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background)); --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border)); --color-input: hsl(var(--input)); --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card)); --color-card-foreground: hsl(var(--card-foreground)); --color-card-border: hsl(var(--card-border));
+  --color-popover: hsl(var(--popover)); --color-popover-foreground: hsl(var(--popover-foreground)); --color-popover-border: hsl(var(--popover-border));
+  --color-primary: hsl(var(--primary)); --color-primary-foreground: hsl(var(--primary-foreground)); --color-primary-border: var(--primary-border);
+  --color-secondary: hsl(var(--secondary)); --color-secondary-foreground: hsl(var(--secondary-foreground)); --color-secondary-border: var(--secondary-border);
+  --color-muted: hsl(var(--muted)); --color-muted-foreground: hsl(var(--muted-foreground)); --color-muted-border: var(--muted-border);
+  --color-accent: hsl(var(--accent)); --color-accent-foreground: hsl(var(--accent-foreground)); --color-accent-border: var(--accent-border);
+  --color-destructive: hsl(var(--destructive)); --color-destructive-foreground: hsl(var(--destructive-foreground)); --color-destructive-border: var(--destructive-border);
+  --color-chart-1: hsl(var(--chart-1)); --color-chart-2: hsl(var(--chart-2)); --color-chart-3: hsl(var(--chart-3)); --color-chart-4: hsl(var(--chart-4)); --color-chart-5: hsl(var(--chart-5));
+  --color-sidebar: hsl(var(--sidebar)); --color-sidebar-foreground: hsl(var(--sidebar-foreground)); --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-primary: hsl(var(--sidebar-primary)); --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent)); --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground)); --color-sidebar-ring: hsl(var(--sidebar-ring));
+  --font-sans: var(--app-font-sans); --font-serif: var(--app-font-serif); --font-mono: var(--app-font-mono);
+  --radius-sm: calc(var(--radius) - 4px); --radius-md: calc(var(--radius) - 2px); --radius-lg: var(--radius); --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --background: 42 42% 96%; --foreground: 211 32% 18%; --border: 39 22% 86%;
+  --card: 42 38% 99%; --card-foreground: 211 32% 18%; --card-border: 39 22% 87%;
+  --sidebar: 210 36% 18%; --sidebar-foreground: 42 35% 94%; --sidebar-border: 210 28% 27%;
+  --sidebar-primary: 42 96% 64%; --sidebar-primary-foreground: 210 36% 18%;
+  --sidebar-accent: 210 30% 25%; --sidebar-accent-foreground: 42 35% 96%; --sidebar-ring: 42 96% 64%;
+  --popover: 42 38% 99%; --popover-foreground: 211 32% 18%; --popover-border: 39 22% 86%;
+  --primary: 34 86% 52%; --primary-foreground: 210 36% 14%;
+  --secondary: 159 28% 90%; --secondary-foreground: 161 38% 23%;
+  --muted: 40 26% 91%; --muted-foreground: 211 12% 48%;
+  --accent: 43 91% 87%; --accent-foreground: 211 32% 18%;
+  --destructive: 5 64% 48%; --destructive-foreground: 0 0% 100%;
+  --input: 39 22% 83%; --ring: 34 86% 52%;
+  --chart-1: 34 86% 52%; --chart-2: 161 42% 38%; --chart-3: 211 42% 36%; --chart-4: 7 57% 57%; --chart-5: 43 70% 68%;
+  --app-font-sans: 'DM Sans', sans-serif; --app-font-serif: 'Manrope', sans-serif; --app-font-mono: 'IBM Plex Mono', monospace;
+  --radius: .8rem; --button-outline: rgba(39, 48, 54, .12); --badge-outline: rgba(39, 48, 54, .08);
+  --elevate-1: rgba(40, 47, 51, .035); --elevate-2: rgba(40, 47, 51, .075);
+  --shadow-sm: 0 2px 8px rgba(42, 47, 45, .045); --shadow: 0 7px 22px rgba(42, 47, 45, .06);
+  --primary-border: hsl(var(--primary)); --secondary-border: hsl(var(--secondary)); --muted-border: hsl(var(--muted));
+  --accent-border: hsl(var(--accent)); --destructive-border: hsl(var(--destructive));
+  --sidebar-primary-border: hsl(var(--sidebar-primary)); --sidebar-accent-border: hsl(var(--sidebar-accent));
+}
+.dark {
+  --background: 210 27% 13%; --foreground: 42 28% 92%; --border: 210 18% 28%;
+  --card: 210 25% 17%; --card-foreground: 42 28% 92%; --card-border: 210 18% 28%;
+  --sidebar: 210 35% 10%; --sidebar-foreground: 42 28% 92%; --sidebar-border: 210 18% 22%;
+  --sidebar-primary: 42 96% 64%; --sidebar-primary-foreground: 210 36% 14%;
+  --sidebar-accent: 210 24% 20%; --sidebar-accent-foreground: 42 28% 92%; --sidebar-ring: 42 96% 64%;
+  --popover: 210 25% 17%; --popover-foreground: 42 28% 92%; --popover-border: 210 18% 28%;
+  --primary: 38 89% 57%; --primary-foreground: 210 36% 14%; --secondary: 161 28% 23%; --secondary-foreground: 155 40% 84%;
+  --muted: 210 19% 23%; --muted-foreground: 210 11% 67%; --accent: 41 45% 25%; --accent-foreground: 42 28% 92%;
+  --destructive: 5 57% 54%; --destructive-foreground: 0 0% 100%; --input: 210 18% 29%; --ring: 38 89% 57%;
+  --chart-1: 38 89% 57%; --chart-2: 161 42% 54%; --chart-3: 211 48% 66%; --chart-4: 7 57% 66%; --chart-5: 43 70% 68%;
+  --button-outline: rgba(255,255,255,.12); --badge-outline: rgba(255,255,255,.07); --elevate-1: rgba(255,255,255,.04); --elevate-2: rgba(255,255,255,.08);
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground antialiased; font-family:var(--app-font-sans); }
+  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+}
+@layer utilities {
+  .font-display { font-family:var(--app-font-serif); }
+  .font-data { font-family:var(--app-font-mono); }
+  .app-grid { background-image:linear-gradient(to right, rgba(27,51,62,.035) 1px, transparent 1px),linear-gradient(to bottom, rgba(27,51,62,.035) 1px, transparent 1px); background-size:36px 36px; }
+  .fade-up { animation:fadeUp .55s cubic-bezier(.2,.7,.2,1) both; }
+  .delay-1 { animation-delay:.08s; } .delay-2 { animation-delay:.16s; } .delay-3 { animation-delay:.24s; }
+}
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }

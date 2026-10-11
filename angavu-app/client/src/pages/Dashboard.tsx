@@ -1,0 +1,568 @@
+import { useEffect, useState } from "react";
+import { Link } from "wouter";
+import {
+  Activity,
+  AlertTriangle,
+  ArrowDownRight,
+  ArrowRight,
+  ArrowUpRight,
+  CalendarDays,
+  CircleCheck,
+  Clock3,
+  PackageOpen,
+  RefreshCw,
+  WalletCards,
+} from "lucide-react";
+import {
+  useGetAngavuDashboard,
+  getGetAngavuDashboardQueryKey,
+  type AngavuDashboard,
+} from "@/lib/api";
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
+import { LoadingState } from "@/components/LoadingState";
+
+type Module = "finance" | "pharmacy" | "inventory" | "analytics";
+const money = (value: number) =>
+  new Intl.NumberFormat("en-KE", { maximumFractionDigits: 0 }).format(value);
+
+export default function Dashboard({
+  initialModule = "analytics",
+}: {
+  initialModule?: Module;
+}) {
+  const [module, setModule] = useState<Module>(initialModule);
+  useEffect(() => setModule(initialModule), [initialModule]);
+  const queryKey = getGetAngavuDashboardQueryKey({ module });
+  const { data, isLoading, isError, refetch, isFetching } =
+    useGetAngavuDashboard({ module }, { query: { queryKey } });
+
+  if (isLoading) return <LoadingState />;
+  if (isError || !data)
+    return (
+      <div className="mx-auto max-w-xl rounded-2xl border border-[#e8c5b9] bg-[#fff8f3] p-7 text-center">
+        <AlertTriangle className="mx-auto text-[#a95643]" size={24} />
+        <h2 className="mt-3 font-display text-xl font-bold">
+          We couldn’t load your overview
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Check your connection and try again. Your saved spreadsheet setup is
+          not changed.
+        </p>
+        <button
+          onClick={() => refetch()}
+          className="mt-5 inline-flex items-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-background"
+          data-testid="button-retry-dashboard"
+        >
+          <RefreshCw size={14} /> Try again
+        </button>
+      </div>
+    );
+
+  const sourceLabels = {
+    sheets: "Google Sheets",
+    demo: "Sample view",
+    disconnected: "Not connected",
+    mixed: "Partial data",
+  };
+  const dashboardTitles: Record<Module, string> = {
+    analytics: "A clearer view of your business.",
+    finance: "Good morning.",
+    pharmacy: "Pharmacy at a glance.",
+    inventory: "Inventory at a glance.",
+  };
+
+  return (
+    <div className="space-y-7">
+      <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+        <div className="fade-up">
+          <div className="text-[11px] font-semibold uppercase tracking-[.19em] text-[#b4781c]">
+            Your business, in view
+          </div>
+          <h1 className="mt-2 font-display text-3xl font-bold tracking-[-.055em] sm:text-[38px]">
+            {dashboardTitles[module]}
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            A clear read on what’s happening, right now.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <span
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-[11px] font-semibold ${
+              data.source === "sheets"
+                ? "border-[#c9ddce] bg-[#eef5ee] text-[#42735a]"
+                : data.source === "demo"
+                  ? "border-[#e6d6ae] bg-[#fbf3df] text-[#927022]"
+                  : "border-border bg-card text-muted-foreground"
+            }`}
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                data.source === "sheets"
+                  ? "bg-[#4a906c]"
+                  : data.source === "demo"
+                    ? "bg-[#c18c24]"
+                    : "bg-[#8a9690]"
+              }`}
+            />
+            {sourceLabels[data.source]}
+          </span>
+          <button
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="grid h-9 w-9 place-items-center rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground disabled:opacity-50"
+            aria-label="Refresh overview"
+            data-testid="button-refresh-dashboard"
+          >
+            <RefreshCw
+              size={15}
+              className={isFetching ? "animate-spin" : ""}
+            />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/80 pb-4">
+        <div
+          className="flex flex-wrap rounded-xl bg-[#ebe7dc] p-1"
+          role="tablist"
+          aria-label="Choose business view"
+        >
+          {(
+            ["analytics", "finance", "pharmacy", "inventory"] as Module[]
+          ).map((key) => (
+            <button
+              role="tab"
+              aria-selected={module === key}
+              key={key}
+              onClick={() => setModule(key)}
+              className={`rounded-lg px-4 py-2 text-xs font-semibold capitalize transition-colors ${
+                module === key
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+              data-testid={`button-module-${key}`}
+            >
+              {key}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <Clock3 size={13} /> Updated{" "}
+          {new Date(data.refreshedAt).toLocaleString("en-KE", {
+            dateStyle: "medium",
+            timeStyle: "short",
+          })}
+        </div>
+      </div>
+
+      {data.source === "disconnected" && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-[#e7d6b1] bg-[#fcf6e7] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f4e8c8] text-[#9b741f]">
+              <Activity size={17} />
+            </div>
+            <div>
+              <div className="text-sm font-semibold">
+                Connect your {module} sheet to see your live numbers
+              </div>
+              <p className="mt-1 text-xs text-[#77786f]">
+                Your overview is ready when your spreadsheet is.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/settings"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#8f6a1e]"
+          >
+            Open setup <ArrowRight size={13} />
+          </Link>
+        </div>
+      )}
+
+      {data.source === "mixed" && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-[#e7d6b1] bg-[#fcf6e7] px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="text-sm font-semibold">
+              This view includes only connected workbooks
+            </div>
+            <p className="mt-1 text-xs text-[#77786f]">
+              Connect the remaining Finance, Pharmacy or Inventory sheets to
+              complete your business overview.
+            </p>
+          </div>
+          <Link
+            href="/settings"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#8f6a1e]"
+          >
+            Open setup <ArrowRight size={13} />
+          </Link>
+        </div>
+      )}
+
+      {data.source === "demo" && (
+        <div className="rounded-xl border border-[#e6d6ae] bg-[#fbf5e6] px-4 py-3 text-xs text-[#786a49]">
+          Sample view — connect your spreadsheet in{" "}
+          <Link href="/settings" className="font-semibold underline">
+            setup
+          </Link>{" "}
+          to see your own live business records.
+        </div>
+      )}
+
+      <MetricGrid metrics={data.metrics} module={module} />
+
+      <section className="grid gap-5 xl:grid-cols-[1.55fr_.85fr]">
+        <div className="rounded-2xl border border-card-border bg-card p-5 shadow-sm sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="font-display text-lg font-bold tracking-[-.03em]">
+                {module === "finance"
+                  ? "Money in & out"
+                  : module === "analytics"
+                    ? "Business performance"
+                    : module === "inventory"
+                      ? "Stock on hand"
+                      : "Pharmacy stock"}
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {module === "finance" || module === "analytics"
+                  ? "Monthly income and expenses from your finance workbook"
+                  : "Items that need your attention"}
+              </p>
+            </div>
+            {(module === "finance" || module === "analytics") && (
+              <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                <span>
+                  <i className="mr-1 inline-block h-2 w-2 rounded-full bg-[#bd8423]" />
+                  Income
+                </span>
+                <span>
+                  <i className="mr-1 inline-block h-2 w-2 rounded-full bg-[#508b77]" />
+                  Expense
+                </span>
+              </div>
+            )}
+          </div>
+          {module === "finance" || module === "analytics" ? (
+            <FinanceChart dashboard={data} />
+          ) : (
+            <StockSummary dashboard={data} module={module} />
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-card-border bg-card p-5 shadow-sm sm:p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-display text-lg font-bold tracking-[-.03em]">
+                Needs your attention
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                A short list of things to check.
+              </p>
+            </div>
+            <span className="grid h-8 min-w-8 place-items-center rounded-full bg-[#f4ebd7] px-2 text-xs font-semibold text-[#8f6a1e]">
+              {data.alerts.length}
+            </span>
+          </div>
+          <div className="mt-5 space-y-3">
+            {data.alerts.length ? (
+              data.alerts.map((alert) => (
+                <article
+                  key={alert.id}
+                  className={`rounded-xl border p-3.5 ${
+                    alert.severity === "critical"
+                      ? "border-[#e5c4bc] bg-[#fff6f2]"
+                      : alert.severity === "warning"
+                        ? "border-[#e9dcb8] bg-[#fcf7e9]"
+                        : "border-border bg-background/70"
+                  }`}
+                  data-testid={`alert-item-${alert.id}`}
+                >
+                  <div className="flex gap-3">
+                    <div
+                      className={`mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg ${
+                        alert.severity === "critical"
+                          ? "bg-[#f4dfd8] text-[#a9513f]"
+                          : alert.severity === "warning"
+                            ? "bg-[#f4e9c9] text-[#98731e]"
+                            : "bg-[#e8eeea] text-[#547765]"
+                      }`}
+                    >
+                      {alert.severity === "critical" ? (
+                        <AlertTriangle size={14} />
+                      ) : (
+                        <Activity size={14} />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-semibold">{alert.title}</div>
+                      <p className="mt-1 text-[11px] leading-[1.55] text-muted-foreground">
+                        {alert.detail}
+                      </p>
+                      {alert.action && (
+                        <button
+                          className="mt-2 text-[10px] font-semibold text-[#9b6d18] hover:underline"
+                          onClick={() =>
+                            setModule(
+                              alert.id.includes("inventory")
+                                ? "inventory"
+                                : alert.id.includes("pharmacy")
+                                  ? "pharmacy"
+                                  : "finance",
+                            )
+                          }
+                          data-testid={`button-alert-action-${alert.id}`}
+                        >
+                          {alert.action}{" "}
+                          <ArrowUpRight className="ml-0.5 inline" size={11} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <div className="rounded-xl border border-dashed border-border px-4 py-8 text-center">
+                <CircleCheck className="mx-auto text-[#4e866e]" size={22} />
+                <div className="mt-2 text-sm font-semibold">
+                  Nothing urgent to flag
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  We’ll surface important changes here.
+                </p>
+              </div>
+            )}
+          </div>
+          {module === "analytics" && data.stock.length > 0 && (
+            <div className="mt-6 border-t border-border/80 pt-5">
+              <div className="font-display text-sm font-bold">
+                Stock watchlist
+              </div>
+              <StockSummary dashboard={data} module="analytics" />
+            </div>
+          )}
+        </div>
+      </section>
+
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#d8dfd5] bg-[#eef3eb] px-5 py-4">
+        <div className="flex items-center gap-3">
+          <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#dce9da] text-[#47755c]">
+            <WalletCards size={17} />
+          </div>
+          <div>
+            <div className="text-xs font-semibold">
+              Something happened just now?
+            </div>
+            <div className="mt-0.5 text-[11px] text-[#687871]">
+              Add a finance, pharmacy or inventory entry, even when you’re
+              offline.
+            </div>
+          </div>
+        </div>
+        <Link
+          href="/entry"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#254147] px-3.5 py-2.5 text-xs font-semibold text-[#fdf8ec] hover:bg-[#32545a]"
+        >
+          Quick entry <ArrowRight size={13} />
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function MetricGrid({
+  metrics,
+  module,
+}: {
+  metrics: AngavuDashboard["metrics"];
+  module: Module;
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {metrics.map((metric, i) => (
+        <article
+          key={`${metric.label}-${i}`}
+          data-testid={`metric-${i}`}
+          className={`fade-up rounded-2xl border border-card-border bg-card p-4 shadow-sm sm:p-5 delay-${Math.min(i + 1, 3)}`}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <div className="text-[11px] font-medium leading-4 text-muted-foreground">
+              {metric.label}
+            </div>
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground">
+              {module === "finance" ? (
+                <WalletCards size={14} />
+              ) : (
+                <PackageOpen size={14} />
+              )}
+            </span>
+          </div>
+          <div className="mt-4 font-data text-[clamp(1.2rem,2vw,1.8rem)] font-medium tracking-[-.06em]">
+            {metric.unit.toLowerCase().includes("ksh") || metric.unit === "KES"
+              ? `KSh ${money(metric.value)}`
+              : `${money(metric.value)}${metric.unit ? ` ${metric.unit}` : ""}`}
+          </div>
+          {metric.change !== undefined && metric.change !== null && (
+            <div
+              className={`mt-2 inline-flex items-center gap-1 text-[10px] font-semibold ${
+                metric.tone === "negative"
+                  ? "text-[#a75b48]"
+                  : metric.tone === "warning"
+                    ? "text-[#9b741f]"
+                    : metric.tone === "positive"
+                      ? "text-[#438166]"
+                      : "text-muted-foreground"
+              }`}
+            >
+              {metric.change < 0 ? (
+                <ArrowDownRight size={12} />
+              ) : (
+                <ArrowUpRight size={12} />
+              )}{" "}
+              {Math.abs(metric.change)}%{" "}
+              <span className="font-normal text-muted-foreground">
+                vs last period
+              </span>
+            </div>
+          )}
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function FinanceChart({ dashboard }: { dashboard: AngavuDashboard }) {
+  if (!dashboard.trend.length)
+    return <EmptyPanel text="No trend data for this period yet." />;
+  return (
+    <div className="mt-6 h-[260px] w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart
+          data={dashboard.trend}
+          margin={{ top: 8, right: 8, left: -18, bottom: 0 }}
+        >
+          <defs>
+            <linearGradient id="incFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#c38a2b" stopOpacity={0.16} />
+              <stop offset="95%" stopColor="#c38a2b" stopOpacity={0} />
+            </linearGradient>
+            <linearGradient id="expFill" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#518b77" stopOpacity={0.12} />
+              <stop offset="95%" stopColor="#518b77" stopOpacity={0} />
+            </linearGradient>
+          </defs>
+          <CartesianGrid stroke="#e9e4d9" strokeDasharray="3 6" vertical={false} />
+          <XAxis
+            dataKey="label"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#8b948c", fontSize: 10 }}
+          />
+          <YAxis
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "#8b948c", fontSize: 10 }}
+            tickFormatter={(v) => (v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v))}
+          />
+          <Tooltip
+            contentStyle={{
+              borderRadius: 12,
+              border: "1px solid #e6e0d4",
+              background: "#fffdf8",
+              fontSize: 11,
+            }}
+            formatter={(value: number) => [`KSh ${money(value)}`]}
+          />
+          <Area
+            type="monotone"
+            dataKey="income"
+            stroke="#bd8423"
+            strokeWidth={2.5}
+            fill="url(#incFill)"
+            activeDot={{ r: 4 }}
+          />
+          <Area
+            type="monotone"
+            dataKey="expense"
+            stroke="#508b77"
+            strokeWidth={2.5}
+            fill="url(#expFill)"
+            activeDot={{ r: 4 }}
+          />
+        </AreaChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function StockSummary({
+  dashboard,
+  module,
+}: {
+  dashboard: AngavuDashboard;
+  module: "pharmacy" | "inventory" | "analytics";
+}) {
+  if (!dashboard.stock.length)
+    return <EmptyPanel text="No stock records to show yet." />;
+  return (
+    <div className="mt-3 space-y-2.5">
+      {dashboard.stock.slice(0, 5).map((item, index) => (
+        <div
+          key={`${item.sku || item.itemName}-${index}`}
+          className="flex items-center gap-3 rounded-xl border border-border/70 bg-background/70 px-3.5 py-3"
+          data-testid={`stock-item-${index}`}
+        >
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#e9efe8] text-[#507963]">
+            <PackageOpen size={16} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-xs font-semibold">
+              {item.itemName}
+            </div>
+            <div className="mt-1 text-[10px] text-muted-foreground">
+              {item.stock} {item.unit || "units"} in stock
+              {item.daysRemaining !== null && item.daysRemaining !== undefined
+                ? ` · ${item.daysRemaining} days remaining`
+                : item.reorderLevel !== null && item.reorderLevel !== undefined
+                  ? ` · reorder at ${item.reorderLevel}`
+                  : ""}
+              {item.location ? ` · ${item.location}` : ""}
+            </div>
+          </div>
+          <span
+            className={`rounded-full px-2 py-1 text-[9px] font-semibold capitalize ${
+              item.status.toLowerCase().includes("low") ||
+              item.status.toLowerCase().includes("critical")
+                ? "bg-[#f8e9d8] text-[#9a5b27]"
+                : item.status.toLowerCase().includes("out") ||
+                    item.status.toLowerCase().includes("expir")
+                  ? "bg-[#f7e4de] text-[#9b5142]"
+                  : "bg-[#e8efe8] text-[#52755d]"
+            }`}
+          >
+            {item.status}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function EmptyPanel({ text }: { text: string }) {
+  return (
+    <div className="mt-6 grid h-[230px] place-items-center rounded-xl border border-dashed border-border text-center">
+      <div>
+        <CalendarDays size={20} className="mx-auto text-muted-foreground" />
+        <p className="mt-3 text-xs text-muted-foreground">{text}</p>
+      </div>
+    </div>
+  );
+}
